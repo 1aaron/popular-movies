@@ -4,14 +4,30 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
 
 import com.example.developer.popularmovies.R
+import com.example.developer.popularmovies.models.Movie
+import com.example.developer.popularmovies.models.Statics
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_portadas.*
+import com.squareup.picasso.NetworkPolicy
+import kotlinx.android.synthetic.main.activity_main.*
+import org.json.JSONObject
+
 
 /**
  * A simple [Fragment] subclass.
@@ -23,11 +39,9 @@ import com.example.developer.popularmovies.R
  */
 class PortadasFragment : Fragment() {
 
-    // TODO: Rename and change types of parameters
-    private var mParam1: String? = null
-    private var mParam2: String? = null
 
     private var mListener: OnFragmentInteractionListener? = null
+    lateinit var adapter: MoviesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +53,6 @@ class PortadasFragment : Fragment() {
         return inflater!!.inflate(R.layout.fragment_portadas, container, false)
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {
         if (mListener != null) {
             mListener!!.onFragmentInteraction(uri)
@@ -48,7 +61,10 @@ class PortadasFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
+        por_recycler.setHasFixedSize(true)
+        por_recycler.layoutManager = GridLayoutManager(context,2)
+        adapter = MoviesAdapter(Statics.arrayMovies)
+        por_recycler.adapter = adapter
     }
 
     override fun onAttach(context: Context?) {
@@ -63,6 +79,38 @@ class PortadasFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         mListener = null
+    }
+
+    fun getMovies(){
+        //todo: validate which url
+        var url = ""
+        if(Statics.chosenFilter == Statics.POPULARITY_FILTER)
+            url = resources.getString(R.string.queryPopularity)+"&page=${Statics.pages}"
+        else
+            url = resources.getString(R.string.queryRating)+"&page=${Statics.pages}"
+
+        val stringResquest = StringRequest(Request.Method.GET,url, Response.Listener {
+            response ->
+            val raiz = JSONObject(response)
+            Statics.arrayMovies.clear()
+            val results = raiz.getJSONArray("results")
+            var i = 0
+            while (i<results.length()){
+                val json: JSONObject = results.getJSONObject(i)
+                val movie = Movie(json.getString("id"),json.getString("title"),json.getString("poster_path"),json.getString("overview"),
+                        json.getString("vote_average"),json.getString("release_date"),json.getString("popularity"))
+                Statics.arrayMovies.add(movie)
+                i++
+            }
+            adapter.notifyDataSetChanged()
+            Statics.pages ++
+        }, Response.ErrorListener {
+            error ->
+            Toast.makeText(context,"Error", Toast.LENGTH_SHORT).show()
+            Log.e(Statics.TAG,"NO SE PUDO",error)
+        })
+        stringResquest.setRetryPolicy(DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT))
+        Statics.volleyqueue.add(stringResquest)
     }
 
     /**
@@ -93,25 +141,38 @@ class PortadasFragment : Fragment() {
         }
     }
 
-    inner class MoviesAdapter: RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
+    inner class MoviesAdapter(var arrayMovies : ArrayList<Movie>): RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            var view = LayoutInflater.from(parent.context).inflate(R.layout.rec_item,parent,false)
+            var vHolder = ViewHolder(view)
+            return vHolder
         }
 
-        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val movie = arrayMovies.get(position)
+            val imagePath = movie.image
+            val completeUrl = resources.getString(R.string.imageBase) + imagePath
+            Picasso.with(context).load(completeUrl)
+                    .into(holder.myImageView,object : Callback {
+                        override fun onSuccess() {
+                            Log.e("tag","success picasso")
+                        }
+
+                        override fun onError() {
+                            holder.myImageView.setImageResource(R.drawable.posterplaceholder)
+                        }
+                    })
+            //holder.myImageView.setImageURI(uri)
         }
 
         override fun getItemCount(): Int {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            return arrayMovies.size
         }
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
             var myImageView: ImageView = itemView.findViewById(R.id.item_img)
-            fun bind(){
-
-            }
         }
     }
 }

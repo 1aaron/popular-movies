@@ -18,5 +18,7 @@ class Statics{
         val POPULARITY_FILTER = 0
         val RATING_FILTER = 1
         var arrayMovies = ArrayList<Movie>()
+        var pages = 1
+        var chosenFilter = 0
     }
 }

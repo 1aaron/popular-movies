@@ -9,6 +9,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/main_pgBar"
+        android:elevation="4dp"
         android:layout_centerInParent="true" />
 
     <FrameLayout

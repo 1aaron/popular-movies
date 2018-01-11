@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity(), PortadasFragment.OnFragmentInteraction
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    var chosenFilter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +64,7 @@ class MainActivity : AppCompatActivity(), PortadasFragment.OnFragmentInteraction
         if(id == R.id.menu_filter){
             val builder = AlertDialog.Builder(this)
                     .setSingleChoiceItems(filters,0, { dialogInterface, i ->
-                        chosenFilter = i
+                        Statics.chosenFilter = i
                     })
                     .setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
                         getMovies()
@@ -93,10 +92,10 @@ class MainActivity : AppCompatActivity(), PortadasFragment.OnFragmentInteraction
     fun getMovies(){
         //todo: validate which url
         var url = ""
-        if(chosenFilter == Statics.POPULARITY_FILTER)
-            url = resources.getString(R.string.queryPopularity)
+        if(Statics.chosenFilter == Statics.POPULARITY_FILTER)
+            url = resources.getString(R.string.queryPopularity)+"&page=1"
         else
-            url = resources.getString(R.string.queryRating)
+            url = resources.getString(R.string.queryRating)+"&page=1"
 
         val stringResquest = StringRequest(Request.Method.GET,url, Response.Listener {
             response ->
@@ -112,6 +111,7 @@ class MainActivity : AppCompatActivity(), PortadasFragment.OnFragmentInteraction
                 i++
             }
             main_pgBar.visibility = View.GONE
+            Statics.pages ++
             inflateFragment()
         }, Response.ErrorListener {
             error ->
