@@ -5,8 +5,22 @@
     tools:context="com.example.developer.popularmovies.controllers.PortadasFragment"
     android:background="#b2b2b2">
 
-    <android.support.v7.widget.RecyclerView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/por_recycler"/>
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/por_loader"
+            android:id="@+id/por_recycler"/>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/por_loader"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
+
 </FrameLayout>

@@ -42,7 +42,8 @@ class PortadasFragment : Fragment() {
 
     private var mListener: OnFragmentInteractionListener? = null
     lateinit var adapter: MoviesAdapter
-
+    lateinit var gridLayoutManager: GridLayoutManager
+    var loading = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -62,9 +63,22 @@ class PortadasFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         por_recycler.setHasFixedSize(true)
-        por_recycler.layoutManager = GridLayoutManager(context,2)
+        gridLayoutManager = GridLayoutManager(context,2)
+        por_recycler.layoutManager = gridLayoutManager
         adapter = MoviesAdapter(Statics.arrayMovies)
         por_recycler.adapter = adapter
+        por_recycler.setOnScrollListener(object : RecyclerView.OnScrollListener(){
+            var ydy = 0
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                ydy = dy
+                Log.e("item pos: ",gridLayoutManager.findLastVisibleItemPosition().toString())
+                Log.e("count: ",gridLayoutManager.itemCount.toString())
+                if(gridLayoutManager.findLastVisibleItemPosition() == gridLayoutManager.itemCount - 1 && !loading){
+                    getMovies()
+                }
+            }
+        })
     }
 
     override fun onAttach(context: Context?) {
@@ -82,7 +96,12 @@ class PortadasFragment : Fragment() {
     }
 
     fun getMovies(){
-        //todo: validate which url
+        if(Statics.pages > 1000){
+            Toast.makeText(context,resources.getString(R.string.listEnd),Toast.LENGTH_SHORT).show()
+            return
+        }
+        loading = true
+        por_loader.visibility = View.VISIBLE
         var url = ""
         if(Statics.chosenFilter == Statics.POPULARITY_FILTER)
             url = resources.getString(R.string.queryPopularity)+"&page=${Statics.pages}"
@@ -92,7 +111,6 @@ class PortadasFragment : Fragment() {
         val stringResquest = StringRequest(Request.Method.GET,url, Response.Listener {
             response ->
             val raiz = JSONObject(response)
-            Statics.arrayMovies.clear()
             val results = raiz.getJSONArray("results")
             var i = 0
             while (i<results.length()){
@@ -103,11 +121,15 @@ class PortadasFragment : Fragment() {
                 i++
             }
             adapter.notifyDataSetChanged()
+            loading = false
             Statics.pages ++
+            por_loader.visibility = View.GONE
         }, Response.ErrorListener {
             error ->
+            loading = false
             Toast.makeText(context,"Error", Toast.LENGTH_SHORT).show()
             Log.e(Statics.TAG,"NO SE PUDO",error)
+            por_loader.visibility = View.GONE
         })
         stringResquest.setRetryPolicy(DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT))
         Statics.volleyqueue.add(stringResquest)

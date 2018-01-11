@@ -7,6 +7,7 @@
     <!-- add at the end the result of the video search in "key" value-->
     <string name="urlYoutube">https://www.youtube.com/watch?v=</string>
     <string name="imageBase">https://image.tmdb.org/t/p/w185</string>
+    <string name="listEnd">End on the list</string>
     <string name="filter">Choose filter</string>
     <string name="filterRated">Top rated</string>
     <string name="filterPopularity">Popularity</string>
