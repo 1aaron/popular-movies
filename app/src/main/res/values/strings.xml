@@ -3,15 +3,22 @@
     <string name="queryPopularity">http://api.themoviedb.org/3/discover/movie?api_key=fbed974353248cea2f22b64919cc6502&amp;sort_by=popularity.desc</string>
     <string name="queryRating">http://api.themoviedb.org/3/discover/movie?api_key=fbed974353248cea2f22b64919cc6502&amp;sort_by=vote_average.desc</string>
     <!-- the number after /movie/ is the movie id-->
-    <string name="trailers"> https://api.themoviedb.org/3/movie/335984/videos?api_key=fbed974353248cea2f22b64919cc6502&amp;language=en-US</string>
+    <string name="trailers1"> https://api.themoviedb.org/3/movie/</string>
+    <string name="trailers2"> /videos?api_key=fbed974353248cea2f22b64919cc6502</string>
     <!-- add at the end the result of the video search in "key" value-->
     <string name="urlYoutube">https://www.youtube.com/watch?v=</string>
     <string name="imageBase">https://image.tmdb.org/t/p/w185</string>
+    <string name="loading">Loading</string>
     <string name="listEnd">End on the list</string>
     <string name="filter">Choose filter</string>
     <string name="filterRated">Top rated</string>
     <string name="filterPopularity">Popularity</string>
+    <string name="date">Date: </string>
+    <string name="language">Language: </string>
 
     <string name="getOut">Are you sure to close app?</string>
     <string name="cancel">Cancel</string>
+    <string name="errorTrailer">Error fetching videos</string>
+    <string name="noTrailer">There are no trailers in our databases</string>
+    <!-- TODO: Remove or change this placeholder text -->
 </resources>

@@ -1,4 +1,4 @@
-package com.example.developer.popularmovies.controllers
+package com.example.developer.popularmovies.fragments
 
 import android.content.Context
 import android.net.Uri
@@ -10,8 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
@@ -19,13 +17,10 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 
 import com.example.developer.popularmovies.R
-import com.example.developer.popularmovies.models.Movie
-import com.example.developer.popularmovies.models.Statics
-import com.squareup.picasso.Callback
-import com.squareup.picasso.Picasso
+import com.example.developer.popularmovies.adaptadores.MoviesAdapter
+import com.example.developer.popularmovies.clases.Movie
+import com.example.developer.popularmovies.clases.Statics
 import kotlinx.android.synthetic.main.fragment_portadas.*
-import com.squareup.picasso.NetworkPolicy
-import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
 
 
@@ -63,17 +58,25 @@ class PortadasFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         por_recycler.setHasFixedSize(true)
-        gridLayoutManager = GridLayoutManager(context,2)
+        if(Statics.screenWidth > 720 && !Statics.land){
+            gridLayoutManager = GridLayoutManager(context,3)
+
+        }else{
+            gridLayoutManager = GridLayoutManager(context,2)
+        }
         por_recycler.layoutManager = gridLayoutManager
         adapter = MoviesAdapter(Statics.arrayMovies)
         por_recycler.adapter = adapter
+        if(Statics.land){
+            val fragment = DetailsFragment.newInstance(Statics.arrayMovies[0])
+            Statics.activity.supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.content_detail, fragment)
+                    .commit()
+        }
         por_recycler.setOnScrollListener(object : RecyclerView.OnScrollListener(){
-            var ydy = 0
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                ydy = dy
-                Log.e("item pos: ",gridLayoutManager.findLastVisibleItemPosition().toString())
-                Log.e("count: ",gridLayoutManager.itemCount.toString())
                 if(gridLayoutManager.findLastVisibleItemPosition() == gridLayoutManager.itemCount - 1 && !loading){
                     getMovies()
                 }
@@ -115,8 +118,8 @@ class PortadasFragment : Fragment() {
             var i = 0
             while (i<results.length()){
                 val json: JSONObject = results.getJSONObject(i)
-                val movie = Movie(json.getString("id"),json.getString("title"),json.getString("poster_path"),json.getString("overview"),
-                        json.getString("vote_average"),json.getString("release_date"),json.getString("popularity"))
+                val movie = Movie(json.getString("id"),json.getString("original_title"),json.getString("poster_path"),json.getString("overview"),
+                        json.getString("vote_average"),json.getString("release_date"),json.getString("popularity"),json.getString("original_language"))
                 Statics.arrayMovies.add(movie)
                 i++
             }
@@ -160,41 +163,6 @@ class PortadasFragment : Fragment() {
             val args = Bundle()
             fragment.arguments = args
             return fragment
-        }
-    }
-
-    inner class MoviesAdapter(var arrayMovies : ArrayList<Movie>): RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
-
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            var view = LayoutInflater.from(parent.context).inflate(R.layout.rec_item,parent,false)
-            var vHolder = ViewHolder(view)
-            return vHolder
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val movie = arrayMovies.get(position)
-            val imagePath = movie.image
-            val completeUrl = resources.getString(R.string.imageBase) + imagePath
-            Picasso.with(context).load(completeUrl)
-                    .into(holder.myImageView,object : Callback {
-                        override fun onSuccess() {
-                            Log.e("tag","success picasso")
-                        }
-
-                        override fun onError() {
-                            holder.myImageView.setImageResource(R.drawable.posterplaceholder)
-                        }
-                    })
-            //holder.myImageView.setImageURI(uri)
-        }
-
-        override fun getItemCount(): Int {
-            return arrayMovies.size
-        }
-
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-            var myImageView: ImageView = itemView.findViewById(R.id.item_img)
         }
     }
 }

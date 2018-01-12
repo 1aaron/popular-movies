@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="queryPopularity">http://api.themoviedb.org/3/discover/movie?api_key=fbed974353248cea2f22b64919cc6502&amp;sort_by=popularity.desc</string>
+    <string name="queryRating">http://api.themoviedb.org/3/discover/movie?api_key=fbed974353248cea2f22b64919cc6502&amp;sort_by=vote_average.desc</string>
+    <string name="trailers1">" https://api.themoviedb.org/3/movie/"</string>
+    <string name="trailers2">" /videos?api_key=fbed974353248cea2f22b64919cc6502"</string>
+    <string name="urlYoutube">https://www.youtube.com/watch?v=</string>
+    <string name="imageBase">https://image.tmdb.org/t/p/w185</string>
+    <string name="loading">Cargando</string>
+    <string name="listEnd">Fin de la lista</string>
+    <string name="filter">Escoge un filtro</string>
+    <string name="filterRated">Mejor votados</string>
+    <string name="filterPopularity">Popularidad</string>
+    <string name="date">"Fecha: "</string>
+    <string name="language">"Lenguaje: "</string>
+    <string name="getOut">¿Seguro de cerrar la app?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="errorTrailer">Error buscando videos</string>
+    <string name="noTrailer">No hay trailers en nuestras bases de datos</string>
+</resources>
