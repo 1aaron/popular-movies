@@ -25,19 +25,18 @@ import org.json.JSONObject
 
 
 /**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [PortadasFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [PortadasFragment.newInstance] factory method to
- * create an instance of this fragment.
+ * Class to manage the posters of movies and show them as needed
  */
 class PortadasFragment : Fragment() {
 
 
+    /**
+     * declare variables
+     */
     private var mListener: OnFragmentInteractionListener? = null
     lateinit var adapter: MoviesAdapter
     lateinit var gridLayoutManager: GridLayoutManager
+    //prevent from load information twice
     var loading = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,15 +57,18 @@ class PortadasFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         por_recycler.setHasFixedSize(true)
+        //check screen size to show the information properly
         if(Statics.screenWidth > 720 && !Statics.land){
             gridLayoutManager = GridLayoutManager(context,3)
 
         }else{
             gridLayoutManager = GridLayoutManager(context,2)
         }
+        //prepare recycler view
         por_recycler.layoutManager = gridLayoutManager
         adapter = MoviesAdapter(Statics.arrayMovies)
         por_recycler.adapter = adapter
+        //if its landscape load details from first element
         if(Statics.land){
             val fragment = DetailsFragment.newInstance(Statics.arrayMovies[0])
             Statics.activity.supportFragmentManager.beginTransaction()
@@ -74,6 +76,7 @@ class PortadasFragment : Fragment() {
                     .replace(R.id.content_detail, fragment)
                     .commit()
         }
+        //detect if its the last item
         por_recycler.setOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -98,11 +101,15 @@ class PortadasFragment : Fragment() {
         mListener = null
     }
 
+    /**
+     * connect with web service to get the movies and add movies to the array
+     */
     fun getMovies(){
         if(Statics.pages > 1000){
             Toast.makeText(context,resources.getString(R.string.listEnd),Toast.LENGTH_SHORT).show()
             return
         }
+        //set that it is loading
         loading = true
         por_loader.visibility = View.VISIBLE
         var url = ""
@@ -138,15 +145,6 @@ class PortadasFragment : Fragment() {
         Statics.volleyqueue.add(stringResquest)
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html) for more information.
-     */
     interface OnFragmentInteractionListener {
         fun onFragmentInteraction(uri: Uri)
     }
